@@ -20,8 +20,9 @@ import { cn } from '@/lib/utils'
 
 import { useArtifact } from './artifact/artifact-context'
 import { Button } from './ui/button'
-import { IconLogo } from './ui/icons'
+import { AnimatedIconLogo } from './ui/icons'
 import { EmptyScreen } from './empty-screen'
+import { IntroBubbles } from './intro-bubbles'
 import { ModelSelector } from './model-selector'
 import { SearchModeToggle } from './search-mode-toggle'
 
@@ -65,6 +66,7 @@ export function ChatPanel({
   const { close: closeArtifact } = useArtifact()
   const imageInputRef = useRef<HTMLInputElement>(null)
   const pdfInputRef = useRef<HTMLInputElement>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
 
   const handleCompositionStart = () => setIsComposing(true)
 
@@ -153,19 +155,35 @@ export function ChatPanel({
     toast.info('Audio recording UI coming soon')
   }
 
+  // Prefill input from animated intro choices
+  const handleIntroSelect = (action: 'search' | 'summarize' | 'chat') => {
+    const preset =
+      action === 'search'
+        ? 'Search: '
+        : action === 'summarize'
+          ? 'Summarize: '
+          : ''
+
+    handleInputChange({
+      target: { value: preset }
+    } as React.ChangeEvent<HTMLTextAreaElement>)
+
+    // Focus the input for immediate typing
+    requestAnimationFrame(() => inputRef.current?.focus())
+  }
+
   return (
     <div
+      ref={containerRef}
       className={cn(
         'w-full bg-background group/form-container shrink-0',
         messages.length > 0 ? 'sticky bottom-0 px-2 pb-4' : 'px-6'
       )}
     >
       {messages.length === 0 && (
-        <div className="mb-10 flex flex-col items-center gap-4">
-          <IconLogo className="size-12 text-muted-foreground" />
-          <p className="text-center text-3xl font-semibold">
-            How can I help you today?
-          </p>
+        <div className="mb-10 flex flex-col items-center gap-8">
+          <IntroBubbles onSelect={handleIntroSelect} />
+          <AnimatedIconLogo className="size-12 text-muted-foreground" containerRef={containerRef} />
         </div>
       )}
       <form
