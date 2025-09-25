@@ -8,12 +8,11 @@ import { Message } from 'ai'
 import {
   ArrowUp,
   ChevronDown,
-  MessageCirclePlus,
-  Square,
+  FileText,
   Image as ImageIcon,
+  MessageCirclePlus,
   Mic,
-  FileText
-} from 'lucide-react'
+  Square} from 'lucide-react'
 import { toast } from 'sonner'
 
 import { Model } from '@/lib/types/models'

@@ -1,11 +1,13 @@
 'use client'
 
 import { useState } from 'react'
+
 import { AlertCircle, CheckCircle, Download, ExternalLink, X } from 'lucide-react'
+
 import { Alert, AlertDescription, AlertTitle } from './ui/alert'
+import { Badge } from './ui/badge'
 import { Button } from './ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card'
-import { Badge } from './ui/badge'
 
 interface ChromeAISetupGuideProps {
   error?: string

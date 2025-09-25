@@ -3,12 +3,12 @@
 import { useEffect, useState } from 'react'
 import Image from 'next/image'
 
-import { Check, ChevronsUpDown, Lightbulb, AlertCircle, Wifi, WifiOff } from 'lucide-react'
+import { AlertCircle, Check, ChevronsUpDown, Lightbulb, Wifi, WifiOff } from 'lucide-react'
 
+import { isChromeAIAvailable } from '@/lib/providers/chrome-ai'
 import { Model } from '@/lib/types/models'
 import { getCookie, setCookie } from '@/lib/utils/cookies'
 import { isReasoningModel } from '@/lib/utils/registry'
-import { isChromeAIAvailable } from '@/lib/providers/chrome-ai'
 
 import { createModelId } from '../lib/utils'
 

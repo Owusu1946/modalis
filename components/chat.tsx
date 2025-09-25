@@ -9,12 +9,13 @@ import { toast } from 'sonner'
 
 import { Model } from '@/lib/types/models'
 import { cn } from '@/lib/utils'
+import { getCookie } from '@/lib/utils/cookies'
+
+import { useChromeAIChat } from '@/hooks/use-chrome-ai-chat'
 
 import { ChatMessages } from './chat-messages'
 import { ChatPanel } from './chat-panel'
 import { ChromeAISetupGuide } from './chrome-ai-setup-guide'
-import { useChromeAIChat } from '@/hooks/use-chrome-ai-chat'
-import { getCookie } from '@/lib/utils/cookies'
 
 // Define section structure
 interface ChatSection {

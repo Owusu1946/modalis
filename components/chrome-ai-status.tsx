@@ -1,8 +1,11 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+
 import { AlertCircle, CheckCircle, Download, XCircle } from 'lucide-react'
+
 import { getChromeAIStatus } from '@/lib/providers/chrome-ai'
+
 import { Alert, AlertDescription } from './ui/alert'
 
 interface ChromeAIStatusProps {
