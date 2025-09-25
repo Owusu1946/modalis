@@ -3,11 +3,12 @@
 import { useEffect, useState } from 'react'
 import Image from 'next/image'
 
-import { Check, ChevronsUpDown, Lightbulb } from 'lucide-react'
+import { Check, ChevronsUpDown, Lightbulb, AlertCircle, Wifi, WifiOff } from 'lucide-react'
 
 import { Model } from '@/lib/types/models'
 import { getCookie, setCookie } from '@/lib/utils/cookies'
 import { isReasoningModel } from '@/lib/utils/registry'
+import { isChromeAIAvailable } from '@/lib/providers/chrome-ai'
 
 import { createModelId } from '../lib/utils'
 
@@ -45,6 +46,7 @@ interface ModelSelectorProps {
 export function ModelSelector({ models }: ModelSelectorProps) {
   const [open, setOpen] = useState(false)
   const [value, setValue] = useState('')
+  const [chromeAIAvailable, setChromeAIAvailable] = useState<boolean | null>(null)
 
   useEffect(() => {
     const savedModel = getCookie('selectedModel')
@@ -56,6 +58,19 @@ export function ModelSelector({ models }: ModelSelectorProps) {
         console.error('Failed to parse saved model:', e)
       }
     }
+  }, [])
+
+  // Check Chrome AI availability
+  useEffect(() => {
+    const checkChromeAI = async () => {
+      try {
+        const available = await isChromeAIAvailable()
+        setChromeAIAvailable(available)
+      } catch {
+        setChromeAIAvailable(false)
+      }
+    }
+    checkChromeAI()
   }, [])
 
   const handleModelSelect = (id: string) => {
@@ -115,6 +130,9 @@ export function ModelSelector({ models }: ModelSelectorProps) {
               <CommandGroup key={provider} heading={provider}>
                 {models.map(model => {
                   const modelId = createModelId(model)
+                  const isChromeAI = model.providerId === 'chrome'
+                  const showStatus = isChromeAI && chromeAIAvailable !== null
+                  
                   return (
                     <CommandItem
                       key={modelId}
@@ -133,6 +151,13 @@ export function ModelSelector({ models }: ModelSelectorProps) {
                         <span className="text-xs font-medium">
                           {model.name}
                         </span>
+                        {showStatus && (
+                          chromeAIAvailable ? (
+                            <Wifi className="h-3 w-3 text-green-500" title="Chrome AI Ready" />
+                          ) : (
+                            <WifiOff className="h-3 w-3 text-red-500" title="Chrome AI Setup Required" />
+                          )
+                        )}
                       </div>
                       <Check
                         className={`h-4 w-4 ${

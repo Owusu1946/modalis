@@ -1,14 +1,14 @@
 'use client'
 
-import { SiDiscord, SiGithub, SiX } from 'react-icons/si'
 import Link from 'next/link'
+import { SiDiscord, SiGithub, SiX } from 'react-icons/si'
 
 import { DropdownMenuItem } from '@/components/ui/dropdown-menu'
 
 const externalLinks = [
   {
     name: 'X',
-    href: 'https://x.com/morphic_ai',
+    href: 'https://x.com/mobila',
     icon: <SiX className="mr-2 h-4 w-4" />
   },
   {
@@ -18,7 +18,7 @@ const externalLinks = [
   },
   {
     name: 'GitHub',
-    href: 'https://git.new/morphic',
+    href: 'https://git.new/mobila',
     icon: <SiGithub className="mr-2 h-4 w-4" />
   }
 ]

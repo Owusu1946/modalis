@@ -12,6 +12,9 @@ import { cn } from '@/lib/utils'
 
 import { ChatMessages } from './chat-messages'
 import { ChatPanel } from './chat-panel'
+import { ChromeAISetupGuide } from './chrome-ai-setup-guide'
+import { useChromeAIChat } from '@/hooks/use-chrome-ai-chat'
+import { getCookie } from '@/lib/utils/cookies'
 
 // Define section structure
 interface ChatSection {
@@ -33,6 +36,19 @@ export function Chat({
 }) {
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const [isAtBottom, setIsAtBottom] = useState(true)
+  const [chromeAIError, setChromeAIError] = useState<string | null>(null)
+  const [isUsingChromeAI, setIsUsingChromeAI] = useState(false)
+
+  // Chrome AI chat hook
+  const chromeAIChat = useChromeAIChat({
+    onFinish: (message) => {
+      setMessages(prev => [...prev, message])
+      setChromeAIError(null)
+    },
+    onError: (error) => {
+      setChromeAIError(error.message)
+    }
+  })
 
   const {
     messages,
@@ -62,20 +78,100 @@ export function Chat({
       window.dispatchEvent(new CustomEvent('chat-history-updated'))
     },
     onError: error => {
-      toast.error(`Error in chat: ${error.message}`)
+      console.log('Chat error:', error)
+      
+      // Check if this is a Chrome AI error
+      if (error.message.includes('Chrome AI') || 
+          error.message.includes('Gemini Nano') ||
+          error.message.includes('built-in AI APIs')) {
+        setChromeAIError(error.message)
+      } else {
+        // Try to parse JSON error response
+        try {
+          const errorData = JSON.parse(error.message)
+          if (errorData.error && errorData.error.includes('Chrome AI')) {
+            setChromeAIError(errorData.error)
+            return
+          }
+        } catch {
+          // Not a JSON error, continue with normal handling
+        }
+        
+        toast.error(`Error in chat: ${error.message}`)
+      }
     },
     sendExtraMessageFields: false, // Disable extra message fields,
     experimental_throttle: 100
   })
 
-  const isLoading = status === 'submitted' || status === 'streaming'
+  const isLoading = status === 'submitted' || status === 'streaming' || chromeAIChat.isLoading
+
+  // Function to check if current model is Chrome AI
+  const getCurrentModel = (): Model | null => {
+    const savedModel = getCookie('selectedModel')
+    if (savedModel) {
+      try {
+        return JSON.parse(savedModel) as Model
+      } catch {
+        return null
+      }
+    }
+    return null
+  }
+
+  // Custom submit handler that routes to Chrome AI or regular API
+  const handleCustomSubmit = async (e: React.FormEvent<HTMLFormElement>, chatRequestOptions?: ChatRequestOptions) => {
+    e.preventDefault()
+    
+    const currentModel = getCurrentModel()
+    const isChromeAI = currentModel?.providerId === 'chrome'
+    
+    if (isChromeAI) {
+      // Handle Chrome AI client-side
+      setIsUsingChromeAI(true)
+      
+      // Add user message to UI immediately
+      const userMessage: Message = {
+        id: Date.now().toString(),
+        role: 'user',
+        content: input
+      }
+      const updatedMessages = [...messages, userMessage]
+      setMessages(updatedMessages)
+      
+      // Clear input
+      handleInputChange({ target: { value: '' } } as any)
+      
+      // Send to Chrome AI
+      await chromeAIChat.sendMessage(updatedMessages, input)
+      
+      setIsUsingChromeAI(false)
+    } else {
+      // Handle regular API
+      setChromeAIError(null)
+      handleSubmit(e, chatRequestOptions)
+    }
+  }
+
+  // Add streaming message to the messages array for display
+  const displayMessages = useMemo(() => {
+    if (chromeAIChat.streamingMessage && isUsingChromeAI) {
+      const streamingMsg: Message = {
+        id: 'streaming',
+        role: 'assistant',
+        content: chromeAIChat.streamingMessage
+      }
+      return [...messages, streamingMsg]
+    }
+    return messages
+  }, [messages, chromeAIChat.streamingMessage, isUsingChromeAI])
 
   // Convert messages array to sections array
   const sections = useMemo<ChatSection[]>(() => {
     const result: ChatSection[] = []
     let currentSection: ChatSection | null = null
 
-    for (const message of messages) {
+    for (const message of displayMessages) {
       if (message.role === 'user') {
         // Start a new section when a user message is found
         if (currentSection) {
@@ -99,7 +195,7 @@ export function Chat({
     }
 
     return result
-  }, [messages])
+  }, [displayMessages])
 
   // Detect if scroll container is at the bottom
   useEffect(() => {
@@ -218,31 +314,42 @@ export function Chat({
       )}
       data-testid="full-chat"
     >
-      <ChatMessages
-        sections={sections}
-        data={data}
-        onQuerySelect={onQuerySelect}
-        isLoading={isLoading}
-        chatId={id}
-        addToolResult={addToolResult}
-        scrollContainerRef={scrollContainerRef}
-        onUpdateMessage={handleUpdateAndReloadMessage}
-        reload={handleReloadFrom}
-      />
-      <ChatPanel
-        input={input}
-        handleInputChange={handleInputChange}
-        handleSubmit={onSubmit}
-        isLoading={isLoading}
-        messages={messages}
-        setMessages={setMessages}
-        stop={stop}
-        query={query}
-        append={append}
-        models={models}
-        showScrollToBottomButton={!isAtBottom}
-        scrollContainerRef={scrollContainerRef}
-      />
+      {chromeAIError ? (
+        <div className="flex-1 flex items-center justify-center p-4">
+          <ChromeAISetupGuide 
+            error={chromeAIError} 
+            onClose={() => setChromeAIError(null)}
+          />
+        </div>
+      ) : (
+        <>
+          <ChatMessages
+            sections={sections}
+            data={data}
+            onQuerySelect={onQuerySelect}
+            isLoading={isLoading}
+            chatId={id}
+            addToolResult={addToolResult}
+            scrollContainerRef={scrollContainerRef}
+            onUpdateMessage={handleUpdateAndReloadMessage}
+            reload={handleReloadFrom}
+          />
+          <ChatPanel
+            input={input}
+            handleInputChange={handleInputChange}
+            handleSubmit={handleCustomSubmit}
+            isLoading={isLoading}
+            messages={messages}
+            setMessages={setMessages}
+            stop={stop}
+            query={query}
+            append={append}
+            models={models}
+            showScrollToBottomButton={!isAtBottom}
+            scrollContainerRef={scrollContainerRef}
+          />
+        </>
+      )}
     </div>
   )
 }

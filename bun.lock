@@ -2,7 +2,7 @@
   "lockfileVersion": 1,
   "workspaces": {
     "": {
-      "name": "morphic",
+      "name": "modalis",
       "dependencies": {
         "@ai-sdk/anthropic": "^1.2.10",
         "@ai-sdk/azure": "^1.1.5",

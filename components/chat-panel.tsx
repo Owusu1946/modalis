@@ -5,7 +5,16 @@ import Textarea from 'react-textarea-autosize'
 import { useRouter } from 'next/navigation'
 
 import { Message } from 'ai'
-import { ArrowUp, ChevronDown, MessageCirclePlus, Square } from 'lucide-react'
+import {
+  ArrowUp,
+  ChevronDown,
+  MessageCirclePlus,
+  Square,
+  Image as ImageIcon,
+  Mic,
+  FileText
+} from 'lucide-react'
+import { toast } from 'sonner'
 
 import { Model } from '@/lib/types/models'
 import { cn } from '@/lib/utils'
@@ -55,6 +64,8 @@ export function ChatPanel({
   const [isComposing, setIsComposing] = useState(false) // Composition state
   const [enterDisabled, setEnterDisabled] = useState(false) // Disable Enter after composition ends
   const { close: closeArtifact } = useArtifact()
+  const imageInputRef = useRef<HTMLInputElement>(null)
+  const pdfInputRef = useRef<HTMLInputElement>(null)
 
   const handleCompositionStart = () => setIsComposing(true)
 
@@ -108,6 +119,39 @@ export function ChatPanel({
         behavior: 'smooth'
       })
     }
+  }
+
+  // UI-only handlers for new controls
+  const handleSelectImage = () => {
+    if (isLoading || isToolInvocationInProgress()) return
+    imageInputRef.current?.click()
+  }
+
+  const handleSelectPdf = () => {
+    if (isLoading || isToolInvocationInProgress()) return
+    pdfInputRef.current?.click()
+  }
+
+  const handleImageChosen: React.ChangeEventHandler<HTMLInputElement> = e => {
+    const file = e.target.files?.[0]
+    if (file) {
+      toast.info(`Selected image: ${file.name}`)
+    }
+    // Allow selecting the same file again
+    if (imageInputRef.current) imageInputRef.current.value = ''
+  }
+
+  const handlePdfChosen: React.ChangeEventHandler<HTMLInputElement> = e => {
+    const file = e.target.files?.[0]
+    if (file) {
+      toast.info(`Selected document: ${file.name}`)
+    }
+    if (pdfInputRef.current) pdfInputRef.current.value = ''
+  }
+
+  const handleRecordAudio = () => {
+    if (isLoading || isToolInvocationInProgress()) return
+    toast.info('Audio recording UI coming soon')
   }
 
   return (
@@ -184,6 +228,40 @@ export function ChatPanel({
           {/* Bottom menu area */}
           <div className="flex items-center justify-between p-3">
             <div className="flex items-center gap-2">
+              {/* New UI-only control buttons */}
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                className="rounded-full"
+                title="Upload image"
+                onClick={handleSelectImage}
+                disabled={isLoading || isToolInvocationInProgress()}
+              >
+                <ImageIcon size={16} />
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                className="rounded-full"
+                title="Record audio"
+                onClick={handleRecordAudio}
+                disabled={isLoading || isToolInvocationInProgress()}
+              >
+                <Mic size={16} />
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                className="rounded-full"
+                title="Upload PDF"
+                onClick={handleSelectPdf}
+                disabled={isLoading || isToolInvocationInProgress()}
+              >
+                <FileText size={16} />
+              </Button>
               <ModelSelector models={models || []} />
               <SearchModeToggle />
             </div>
@@ -216,6 +294,22 @@ export function ChatPanel({
             </div>
           </div>
         </div>
+
+        {/* Hidden inputs for file selection (UI-only) */}
+        <input
+          ref={imageInputRef}
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={handleImageChosen}
+        />
+        <input
+          ref={pdfInputRef}
+          type="file"
+          accept="application/pdf,.pdf"
+          className="hidden"
+          onChange={handlePdfChosen}
+        />
 
         {messages.length === 0 && (
           <EmptyScreen

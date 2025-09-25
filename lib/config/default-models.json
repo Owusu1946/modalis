@@ -201,6 +201,14 @@
       "toolCallType": "native"
     },
     {
+      "id": "gemini-nano",
+      "name": "Gemini Nano",
+      "provider": "Chrome AI",
+      "providerId": "chrome",
+      "enabled": true,
+      "toolCallType": "manual"
+    },
+    {
       "id": "<OPENAI_COMPATIBLE_MODEL>",
       "name": "<OPENAI_COMPATIBLE_MODEL>",
       "provider": "OpenAI Compatible",

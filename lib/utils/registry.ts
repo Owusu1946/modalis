@@ -12,6 +12,7 @@ import {
   wrapLanguageModel
 } from 'ai'
 import { createOllama } from 'ollama-ai-provider'
+import { createChromeAI } from '../providers/chrome-ai'
 
 export const registry = createProviderRegistry({
   openai,
@@ -37,7 +38,8 @@ export const registry = createProviderRegistry({
     apiKey: process.env.OPENAI_COMPATIBLE_API_KEY,
     baseURL: process.env.OPENAI_COMPATIBLE_API_BASE_URL
   }),
-  xai
+  xai,
+  chrome: createChromeAI()
 })
 
 export function getModel(model: string) {
@@ -84,6 +86,12 @@ export function getModel(model: string) {
     })
   }
 
+  // Handle Chrome AI models
+  if (model.includes('chrome')) {
+    const chrome = createChromeAI()
+    return chrome.languageModel(modelName)
+  }
+
   return registry.languageModel(
     model as Parameters<typeof registry.languageModel>[0]
   )
@@ -114,6 +122,9 @@ export function isProviderEnabled(providerId: string): boolean {
         !!process.env.OPENAI_COMPATIBLE_API_KEY &&
         !!process.env.OPENAI_COMPATIBLE_API_BASE_URL
       )
+    case 'chrome':
+      // Chrome AI is available client-side only, always return true for server-side checks
+      return true
     default:
       return false
   }
@@ -137,6 +148,8 @@ export function getToolCallModel(model?: string) {
       return getModel(`ollama:${ollamaModel}`)
     case 'google':
       return getModel('google:gemini-2.0-flash')
+    case 'chrome':
+      return getModel('chrome:gemini-nano')
     default:
       return getModel('openai:gpt-4o-mini')
   }
@@ -152,6 +165,10 @@ export function isToolCallSupported(model?: string) {
 
   if (provider === 'google') {
     return false
+  }
+
+  if (provider === 'chrome') {
+    return false // Chrome AI doesn't support tool calling yet
   }
 
   // Deepseek R1 is not supported

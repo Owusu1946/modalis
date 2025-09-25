@@ -45,6 +45,18 @@ export async function POST(req: Request) {
       }
     }
 
+    // Special handling for Chrome AI models - they can't run on the server
+    if (selectedModel.providerId === 'chrome') {
+      console.log('Chrome AI model detected, returning error response')
+      return new Response(
+        'Chrome AI models can only run in the browser, not on the server. Chrome AI requires direct browser access to the built-in AI APIs.',
+        {
+          status: 400,
+          statusText: 'Bad Request'
+        }
+      )
+    }
+
     if (
       !isProviderEnabled(selectedModel.providerId) ||
       selectedModel.enabled === false
