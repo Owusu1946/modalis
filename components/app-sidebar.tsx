@@ -1,5 +1,5 @@
-import { Suspense } from 'react'
 import Link from 'next/link'
+import { Suspense } from 'react'
 
 import { Plus } from 'lucide-react'
 
@@ -7,6 +7,7 @@ import { cn } from '@/lib/utils'
 
 import {
   Sidebar,
+  SidebarAnnouncements,
   SidebarContent,
   SidebarHeader,
   SidebarMenu,
@@ -46,6 +47,7 @@ export default function AppSidebar() {
             <ChatHistorySection />
           </Suspense>
         </div>
+        <SidebarAnnouncements />
       </SidebarContent>
       <SidebarRail />
     </Sidebar>

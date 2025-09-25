@@ -4,7 +4,7 @@ import * as React from 'react'
 
 import { Slot } from '@radix-ui/react-slot'
 import { cva, VariantProps } from 'class-variance-authority'
-import { PanelLeft } from 'lucide-react'
+import { PanelLeft, Bell, MessageSquare } from 'lucide-react'
 
 import { cn } from '@/lib/utils/index'
 
@@ -773,6 +773,34 @@ const SidebarMenuSubButton = React.forwardRef<
 })
 SidebarMenuSubButton.displayName = 'SidebarMenuSubButton'
 
+// Simple reusable block with Announcement and Feedback entries
+const SidebarAnnouncements = React.forwardRef<HTMLDivElement, React.ComponentProps<'div'>>(
+  ({ className, ...props }, ref) => {
+    return (
+      <div ref={ref} className={cn('w-full', className)} {...props}>
+        <SidebarSeparator className="my-2" />
+        <SidebarGroup>
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <SidebarMenuButton>
+                <Bell />
+                <span>Announcement</span>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton>
+                <MessageSquare />
+                <span>Feedback</span>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </SidebarGroup>
+      </div>
+    )
+  }
+)
+SidebarAnnouncements.displayName = 'SidebarAnnouncements'
+
 export {
   Sidebar,
   SidebarContent,
@@ -797,5 +825,6 @@ export {
   SidebarRail,
   SidebarSeparator,
   SidebarTrigger,
-  useSidebar
+  useSidebar,
+  SidebarAnnouncements
 }
