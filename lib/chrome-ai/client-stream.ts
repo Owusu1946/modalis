@@ -1,4 +1,5 @@
 import { Message } from 'ai'
+
 import { getChromeAIStatus } from '../providers/chrome-ai'
 
 export interface ChromeAIStreamOptions {
