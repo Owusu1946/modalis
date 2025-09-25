@@ -153,9 +153,13 @@ export function ModelSelector({ models }: ModelSelectorProps) {
                         </span>
                         {showStatus && (
                           chromeAIAvailable ? (
-                            <Wifi className="h-3 w-3 text-green-500" title="Chrome AI Ready" />
+                            <span title="Chrome AI Ready">
+                              <Wifi className="h-3 w-3 text-green-500" />
+                            </span>
                           ) : (
-                            <WifiOff className="h-3 w-3 text-red-500" title="Chrome AI Setup Required" />
+                            <span title="Chrome AI Setup Required">
+                              <WifiOff className="h-3 w-3 text-red-500" />
+                            </span>
                           )
                         )}
                       </div>
