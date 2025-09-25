@@ -4,7 +4,7 @@ import * as React from 'react'
 
 import { Slot } from '@radix-ui/react-slot'
 import { cva, VariantProps } from 'class-variance-authority'
-import { PanelLeft, Bell, MessageSquare } from 'lucide-react'
+import { Bell, MessageSquare,PanelLeft } from 'lucide-react'
 
 import { cn } from '@/lib/utils/index'
 
@@ -803,6 +803,7 @@ SidebarAnnouncements.displayName = 'SidebarAnnouncements'
 
 export {
   Sidebar,
+  SidebarAnnouncements,
   SidebarContent,
   SidebarFooter,
   SidebarGroup,
@@ -825,6 +826,4 @@ export {
   SidebarRail,
   SidebarSeparator,
   SidebarTrigger,
-  useSidebar,
-  SidebarAnnouncements
-}
+  useSidebar}
