@@ -8,10 +8,7 @@ import { Message } from 'ai'
 import {
   ArrowUp,
   ChevronDown,
-  FileText,
-  Image as ImageIcon,
   MessageCirclePlus,
-  Mic,
   Square} from 'lucide-react'
 import { toast } from 'sonner'
 
@@ -25,6 +22,7 @@ import { EmptyScreen } from './empty-screen'
 import { IntroBubbles } from './intro-bubbles'
 import { ModelSelector } from './model-selector'
 import { SearchModeToggle } from './search-mode-toggle'
+import { MediaActions } from './media-actions'
 
 interface ChatPanelProps {
   input: string
@@ -177,7 +175,9 @@ export function ChatPanel({
       ref={containerRef}
       className={cn(
         'w-full bg-background group/form-container shrink-0',
-        messages.length > 0 ? 'sticky bottom-0 px-2 pb-4' : 'px-6'
+        messages.length > 0
+          ? 'sticky bottom-0 px-2 pb-[calc(env(safe-area-inset-bottom)+1rem)]'
+          : 'px-4 sm:px-6 pt-[calc(env(safe-area-inset-top)+56px)] pb-[calc(env(safe-area-inset-bottom)+2rem)]'
       )}
     >
       {messages.length === 0 && (
@@ -204,7 +204,7 @@ export function ChatPanel({
           </Button>
         )}
 
-        <div className="relative flex flex-col w-full gap-2 bg-muted rounded-3xl border border-input">
+        <div className="relative flex flex-col w-full gap-2 bg-muted rounded-3xl border border-input overflow-hidden">
           <Textarea
             ref={inputRef}
             name="input"
@@ -217,7 +217,7 @@ export function ChatPanel({
             spellCheck={false}
             value={input}
             disabled={isLoading || isToolInvocationInProgress()}
-            className="resize-none w-full min-h-12 bg-transparent border-0 p-4 text-sm placeholder:text-muted-foreground focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+            className="resize-none w-full max-w-full min-w-0 min-h-12 max-h-[40dvh] overflow-y-auto bg-transparent border-0 p-4 text-base sm:text-sm placeholder:text-muted-foreground focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 break-words whitespace-pre-wrap leading-relaxed"
             onChange={e => {
               handleInputChange(e)
               setShowEmptyScreen(e.target.value.length === 0)
@@ -243,42 +243,15 @@ export function ChatPanel({
           />
 
           {/* Bottom menu area */}
-          <div className="flex items-center justify-between p-3">
-            <div className="flex items-center gap-2">
-              {/* New UI-only control buttons */}
-              <Button
-                type="button"
-                variant="outline"
-                size="icon"
-                className="rounded-full"
-                title="Upload image"
-                onClick={handleSelectImage}
+          <div className="flex flex-wrap items-center justify-between gap-2 p-3">
+            <div className="flex flex-wrap items-center gap-2">
+              {/* Compact media actions dropdown */}
+              <MediaActions
+                onSelectImage={handleSelectImage}
+                onRecordAudio={handleRecordAudio}
+                onSelectPdf={handleSelectPdf}
                 disabled={isLoading || isToolInvocationInProgress()}
-              >
-                <ImageIcon size={16} />
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                size="icon"
-                className="rounded-full"
-                title="Record audio"
-                onClick={handleRecordAudio}
-                disabled={isLoading || isToolInvocationInProgress()}
-              >
-                <Mic size={16} />
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                size="icon"
-                className="rounded-full"
-                title="Upload PDF"
-                onClick={handleSelectPdf}
-                disabled={isLoading || isToolInvocationInProgress()}
-              >
-                <FileText size={16} />
-              </Button>
+              />
               <ModelSelector models={models || []} />
               <SearchModeToggle />
             </div>
