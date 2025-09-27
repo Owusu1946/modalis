@@ -20,9 +20,9 @@ import { Button } from './ui/button'
 import { AnimatedIconLogo } from './ui/icons'
 import { EmptyScreen } from './empty-screen'
 import { IntroBubbles } from './intro-bubbles'
+import { MediaActions } from './media-actions'
 import { ModelSelector } from './model-selector'
 import { SearchModeToggle } from './search-mode-toggle'
-import { MediaActions } from './media-actions'
 
 interface ChatPanelProps {
   input: string
