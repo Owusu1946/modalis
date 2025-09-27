@@ -59,11 +59,11 @@ export function MediaActions({
               </CommandItem>
               <CommandItem onSelect={handle(onRecordAudio)} className="gap-2">
                 <Mic className="h-4 w-4" />
-                <span>Record audio</span>
+                <span>Voice input</span>
               </CommandItem>
               <CommandItem onSelect={handle(onSelectPdf)} className="gap-2">
                 <FileText className="h-4 w-4" />
-                <span>Upload PDF</span>
+                <span>Upload files</span>
               </CommandItem>
             </CommandGroup>
           </CommandList>

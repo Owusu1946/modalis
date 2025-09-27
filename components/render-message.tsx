@@ -105,6 +105,7 @@ export function RenderMessage({
         message={message.content}
         messageId={messageId}
         onUpdateMessage={onUpdateMessage}
+        attachments={(message as any).experimental_attachments}
       />
     )
   }
