@@ -12,7 +12,8 @@ import {
   MessageCirclePlus,
   Mic,
   Square,
-  X} from 'lucide-react'
+  X
+} from 'lucide-react'
 import { toast } from 'sonner'
 
 import { Model } from '@/lib/types/models'
