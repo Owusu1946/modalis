@@ -152,7 +152,7 @@ export function getToolCallModel(model?: string) {
     case 'chrome':
       return getModel('chrome:gemini-nano')
     default:
-      return getModel('openai:gpt-4o-mini')
+      return getModel('google:gemini-2.0-flash')
   }
 }
 
@@ -165,7 +165,7 @@ export function isToolCallSupported(model?: string) {
   }
 
   if (provider === 'google') {
-    return false
+    return true
   }
 
   if (provider === 'chrome') {

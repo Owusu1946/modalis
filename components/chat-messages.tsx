@@ -82,6 +82,22 @@ export function ChatMessages({
     }
   }, [data])
 
+  // Auto-scroll to the bottom on new content so the reply is visible on mobile
+  useEffect(() => {
+    const el = scrollContainerRef.current
+    if (!el) return
+    // Use rAF to wait for DOM paint
+    const id = requestAnimationFrame(() => {
+      try {
+        el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' })
+      } catch {
+        // Fallback for older browsers
+        el.scrollTop = el.scrollHeight
+      }
+    })
+    return () => cancelAnimationFrame(id)
+  }, [sections.length, isLoading, scrollContainerRef])
+
   if (!sections.length) return null
 
   // Get all messages as a flattened array
@@ -116,6 +132,8 @@ export function ChatMessages({
       [id]: open
     }))
   }
+
+  
 
   return (
     <div

@@ -219,25 +219,34 @@ export function Chat({
     return () => container.removeEventListener('scroll', handleScroll)
   }, [])
 
-  // Scroll to the section when a new user message is sent
+  // Scroll to the latest section (thread) when a new user message is sent
   useEffect(() => {
     // Only scroll if this chat is currently visible in the URL
     const isCurrentChat =
       window.location.pathname === `/search/${id}` ||
       (window.location.pathname === '/' && sections.length > 0)
 
-    if (isCurrentChat && sections.length > 0) {
-      const lastMessage = messages[messages.length - 1]
-      if (lastMessage && lastMessage.role === 'user') {
-        // If the last message is from user, find the corresponding section
-        const sectionId = lastMessage.id
-        requestAnimationFrame(() => {
-          const sectionElement = document.getElementById(`section-${sectionId}`)
-          sectionElement?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-        })
+    if (!isCurrentChat || sections.length === 0) return
+
+    const lastMessage = messages[messages.length - 1]
+    if (!lastMessage || lastMessage.role !== 'user') return
+
+    // Scroll the internal container so the latest section is in view (mobile-safe)
+    requestAnimationFrame(() => {
+      const container = scrollContainerRef.current
+      const section = document.getElementById(`section-${lastMessage.id}`)
+      if (!container || !section) return
+      const containerTop = container.getBoundingClientRect().top
+      const sectionTop = section.getBoundingClientRect().top
+      const delta = sectionTop - containerTop
+      const padding = 12 // small top padding
+      try {
+        container.scrollTo({ top: container.scrollTop + delta - padding, behavior: 'smooth' })
+      } catch {
+        container.scrollTop = container.scrollTop + delta - padding
       }
-    }
-  }, [sections, messages, id])
+    })
+  }, [sections, messages, id, scrollContainerRef])
 
   useEffect(() => {
     setMessages(savedMessages)

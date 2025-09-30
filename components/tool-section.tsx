@@ -6,6 +6,7 @@ import { QuestionConfirmation } from './question-confirmation'
 import RetrieveSection from './retrieve-section'
 import { SearchSection } from './search-section'
 import { VideoSearchSection } from './video-search-section'
+import { WebSection } from './web-section'
 
 interface ToolSectionProps {
   tool: ToolInvocation
@@ -82,6 +83,15 @@ export function ToolSection({
           tool={tool}
           isOpen={isOpen}
           onOpenChange={onOpenChange}
+        />
+      )
+    case 'web':
+      return (
+        <WebSection
+          tool={tool}
+          isOpen={isOpen}
+          onOpenChange={onOpenChange}
+          chatId={chatId || ''}
         />
       )
     default:

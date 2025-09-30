@@ -63,9 +63,9 @@ export function ChatArtifactContainer({
                 className={cn('overflow-hidden', {
                   'animate-slide-in-right': state.isOpen
                 })}
-                maxSize={50}
-                minSize={30}
-                defaultSize={40}
+                maxSize={70}
+                minSize={35}
+                defaultSize={60}
               >
                 <InspectorPanel />
               </ResizablePanel>

@@ -1,8 +1,10 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
-import { FileText, Image as ImageIcon, Mic, MoreHorizontal } from 'lucide-react'
+import { FileText, Globe, Image as ImageIcon, Mic, MoreHorizontal, Check } from 'lucide-react'
+
+import { getCookie, setCookie } from '@/lib/utils/cookies'
 
 import { Button } from './ui/button'
 import {
@@ -27,10 +29,29 @@ export function MediaActions({
   disabled
 }: MediaActionsProps) {
   const [open, setOpen] = useState(false)
+  const [isSearchMode, setIsSearchMode] = useState(true)
+
+  // Mirror the same persisted state as SearchModeToggle
+  useEffect(() => {
+    const saved = getCookie('search-mode')
+    if (saved !== null) {
+      setIsSearchMode(saved === 'true')
+    } else {
+      setCookie('search-mode', 'true')
+      setIsSearchMode(true)
+    }
+  }, [])
 
   const handle = (fn: () => void) => () => {
     if (disabled) return
     fn()
+    setOpen(false)
+  }
+
+  const handleToggleSearch = () => {
+    const next = !isSearchMode
+    setIsSearchMode(next)
+    setCookie('search-mode', next.toString())
     setOpen(false)
   }
 
@@ -53,6 +74,11 @@ export function MediaActions({
         <Command>
           <CommandList>
             <CommandGroup>
+              <CommandItem onSelect={handleToggleSearch} className="gap-2">
+                <Globe className="h-4 w-4" />
+                <span>{isSearchMode ? 'Disable search' : 'Enable search'}</span>
+                {isSearchMode && <Check className="ml-auto h-4 w-4" />}
+              </CommandItem>
               <CommandItem onSelect={handle(onSelectImage)} className="gap-2">
                 <ImageIcon className="h-4 w-4" />
                 <span>Upload image</span>

@@ -664,7 +664,9 @@ export function ChatPanel({
                 disabled={isLoading || isToolInvocationInProgress()}
               />
               <ModelSelector models={models || []} />
-              <SearchModeToggle />
+              <div className="hidden sm:block">
+                <SearchModeToggle />
+              </div>
             </div>
             <div className="flex items-center gap-2">
               {messages.length > 0 && (
