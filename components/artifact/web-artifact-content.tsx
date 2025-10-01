@@ -1,20 +1,8 @@
 "use client"
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import type { ToolInvocation } from 'ai'
 
-import { Section, ToolArgsSection } from '@/components/section'
-import { Input } from '@/components/ui/input'
-import { CodeEditor } from '@/components/ui/code-editor'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger
-} from '@/components/ui/dropdown-menu'
-import { Separator } from '@/components/ui/separator'
-import { useArtifact } from '@/components/artifact/artifact-context'
-import { toast } from 'sonner'
+import type { ToolInvocation } from 'ai'
 import {
   ChevronLeft,
   ChevronRight,
@@ -28,6 +16,20 @@ import {
   MoreHorizontal,
   Palette
 } from 'lucide-react'
+import { toast } from 'sonner'
+
+import { CodeEditor } from '@/components/ui/code-editor'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger
+} from '@/components/ui/dropdown-menu'
+import { Input } from '@/components/ui/input'
+import { Separator } from '@/components/ui/separator'
+
+import { useArtifact } from '@/components/artifact/artifact-context'
+import { Section, ToolArgsSection } from '@/components/section'
 
 type WebFile = { path: string; language: 'html' | 'css' | 'js'; content: string }
 
@@ -38,18 +40,46 @@ type WebProject = {
   files: WebFile[]
 }
 
+// Build a simple directory tree from file paths (moved outside component to avoid hook deps warnings)
+type TreeNode = {
+  name: string
+  path?: string
+  type: 'dir' | 'file'
+  language?: WebFile['language']
+  children?: TreeNode[]
+}
+
+function buildTree(paths: WebFile[]): TreeNode {
+  const root: TreeNode = { name: 'root', type: 'dir', children: [] }
+  for (const f of paths) {
+    const parts = f.path.split('/')
+    let node: TreeNode = root
+    parts.forEach((part, idx) => {
+      const isFile = idx === parts.length - 1
+      if (isFile) {
+        node.children!.push({ name: part, path: f.path, type: 'file', language: f.language })
+      } else {
+        let dir = node.children!.find(c => c.type === 'dir' && c.name === part) as TreeNode | undefined
+        if (!dir) {
+          dir = { name: part, type: 'dir', children: [] }
+          node.children!.push(dir)
+        }
+        node = dir
+      }
+    })
+  }
+  return root
+}
+
 export function WebArtifactContent({ tool }: { tool: ToolInvocation }) {
   const project: WebProject | undefined =
     tool.state === 'result' ? (tool.result as WebProject) : undefined
+  // Hooks must always run; rendering will handle empty or missing projects.
 
-  if (!project?.files || project.files.length === 0) {
-    return <div className="p-4">No web artifact</div>
-  }
-
-  const [title, setTitle] = useState(project.title || 'My Website')
-  const [files, setFiles] = useState<WebFile[]>(project.files)
+  const [title, setTitle] = useState(project?.title || 'My Website')
+  const [files, setFiles] = useState<WebFile[]>(project?.files ?? [])
   const [activePath, setActivePath] = useState<string>(
-    project.files.find(f => f.path.endsWith('.html'))?.path || project.files[0].path
+    project?.files?.find(f => f.path.endsWith('.html'))?.path || project?.files?.[0]?.path || ''
   )
   const [viewMode, setViewMode] = useState<'code' | 'preview' | 'split'>('split')
   const [version, setVersion] = useState<number>(1)
@@ -60,26 +90,28 @@ export function WebArtifactContent({ tool }: { tool: ToolInvocation }) {
   const originalContentsRef = useRef<Map<string, string>>(new Map())
 
   useEffect(() => {
-    setTitle(project.title || 'My Website')
-    setFiles(project.files)
+    setTitle(project?.title || 'My Website')
+    const pf = project?.files ?? []
+    setFiles(pf)
     setActivePath(
-      project.files.find(f => f.path.endsWith('.html'))?.path || project.files[0].path
+      pf.find(f => f.path.endsWith('.html'))?.path || pf[0]?.path || ''
     )
     // initialize tabs and baselines
     setOpenTabs(prev => {
       const first =
-        project.files.find(f => f.path.endsWith('.html'))?.path ||
-        project.files[0]?.path || ''
+        pf.find(f => f.path.endsWith('.html'))?.path ||
+        pf[0]?.path || ''
       return first ? [first] : []
     })
     const base = new Map<string, string>()
-    for (const f of project.files) base.set(f.path, f.content)
+    for (const f of pf) base.set(f.path, f.content)
     originalContentsRef.current = base
     setDirtyPaths(new Set())
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tool.toolCallId])
 
-  const activeFile = files.find(f => f.path === activePath)!
+  const activeFile = files.find(f => f.path === activePath)
+  const currentFile = activeFile ?? files[0]
 
   const srcDoc = useMemo(() => {
     const htmlFile = files.find(f => f.path.endsWith('.html'))
@@ -179,30 +211,6 @@ export function WebArtifactContent({ tool }: { tool: ToolInvocation }) {
     return () => window.removeEventListener('keydown', handler, true)
   }, [saveSnapshot])
 
-  // Build a simple directory tree from file paths
-  type TreeNode = { name: string; path?: string; type: 'dir' | 'file'; language?: WebFile['language']; children?: TreeNode[] }
-  function buildTree(paths: WebFile[]): TreeNode {
-    const root: TreeNode = { name: 'root', type: 'dir', children: [] }
-    for (const f of paths) {
-      const parts = f.path.split('/')
-      let node = root
-      parts.forEach((part, idx) => {
-        const isFile = idx === parts.length - 1
-        if (isFile) {
-          node.children!.push({ name: part, path: f.path, type: 'file', language: f.language })
-        } else {
-          let dir = node.children!.find(c => c.type === 'dir' && c.name === part)
-          if (!dir) {
-            dir = { name: part, type: 'dir', children: [] }
-            node.children!.push(dir)
-          }
-          node = dir
-        }
-      })
-    }
-    return root
-  }
-
   const tree = useMemo(() => buildTree(files), [files])
 
   const Breadcrumbs = () => {
@@ -274,20 +282,27 @@ export function WebArtifactContent({ tool }: { tool: ToolInvocation }) {
   }
 
   const handleCopy = async () => {
+    if (!currentFile) return
     try {
-      await navigator.clipboard.writeText(activeFile.content)
+      await navigator.clipboard.writeText(currentFile.content)
     } catch {}
   }
   const handleDownload = () => {
-    const blob = new Blob([activeFile.content], { type: 'text/plain' })
+    if (!currentFile) return
+    const blob = new Blob([currentFile.content], { type: 'text/plain' })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
-    a.download = activeFile.path
+    a.download = currentFile.path || 'file.txt'
     document.body.appendChild(a)
     a.click()
     a.remove()
     URL.revokeObjectURL(url)
+  }
+
+  // Safe early return AFTER hooks
+  if (files.length === 0) {
+    return <div className="p-4">No web artifact</div>
   }
 
   return (
@@ -501,7 +516,7 @@ export function WebArtifactContent({ tool }: { tool: ToolInvocation }) {
               </div>
             </div>
             <div className="space-y-2">
-              {activeFile.language !== 'html' && (
+              {(currentFile?.language ?? 'html') !== 'html' && (
                 <div className="flex items-center gap-2">
                   <label htmlFor="project-title" className="text-xs opacity-80">
                     Title
@@ -515,10 +530,10 @@ export function WebArtifactContent({ tool }: { tool: ToolInvocation }) {
                 </div>
               )}
               <CodeEditor
-                value={activeFile.content}
+                value={currentFile?.content ?? ''}
                 onChange={updateActiveFile}
                 language={
-                  activeFile.language === 'js' ? 'javascript' : (activeFile.language as 'html' | 'css' | 'javascript')
+                  (currentFile?.language ?? 'html') === 'js' ? 'javascript' : ((currentFile?.language ?? 'html') as 'html' | 'css' | 'javascript')
                 }
                 minHeight="70vh"
                 className="min-h-[50vh] xl:min-h-[70vh]"

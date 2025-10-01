@@ -3,10 +3,10 @@
 import React from 'react'
 import dynamic from 'next/dynamic'
 
-import { vscodeLight } from '@uiw/codemirror-theme-vscode'
-import { html } from '@codemirror/lang-html'
 import { css } from '@codemirror/lang-css'
+import { html } from '@codemirror/lang-html'
 import { javascript } from '@codemirror/lang-javascript'
+import { vscodeLight } from '@uiw/codemirror-theme-vscode'
 
 // Dynamic import to ensure client-side only rendering
 const ReactCodeMirror = dynamic(

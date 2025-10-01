@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 
-import { FileText, Globe, Image as ImageIcon, Mic, MoreHorizontal, Check } from 'lucide-react'
+import { Check,FileText, Globe, Image as ImageIcon, Mic, MoreHorizontal } from 'lucide-react'
 
 import { getCookie, setCookie } from '@/lib/utils/cookies'
 

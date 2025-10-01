@@ -91,7 +91,7 @@ function SessionUI({
       const timer = setTimeout(() => setShowTutorial(true), 500)
       return () => clearTimeout(timer)
     }
-  }, [])
+  }, [externalStatus])
 
   // Log hook state
   useEffect(() => {
@@ -127,7 +127,7 @@ function SessionUI({
     }
     if ((voiceMessages as any[]).some(v => v?.type === 'assistant_text')) setUiStatus('speaking')
     else setUiStatus('listening')
-  }, [voiceMessages])
+  }, [voiceMessages, onTranscript])
 
   const configId = process.env.NEXT_PUBLIC_HUME_CONFIG_ID
 

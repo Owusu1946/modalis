@@ -41,6 +41,7 @@ function AnimatedIconLogo({ className, containerRef, ...props }: AnimatedIconLog
   const [headScale, setHeadScale] = useState(1)
   const [winkEye, setWinkEye] = useState<null | 'left' | 'right'>(null)
   const winkUntilRef = useRef<number>(0)
+  const winkEyeRef = useRef<null | 'left' | 'right'>(null)
 
   // Human-like blinking animation
   useEffect(() => {
@@ -149,6 +150,11 @@ function AnimatedIconLogo({ className, containerRef, ...props }: AnimatedIconLog
     })
   }, [mousePos, containerRef])
 
+  // Keep a ref in sync with winkEye to avoid adding it as a dependency below
+  useEffect(() => {
+    winkEyeRef.current = winkEye
+  }, [winkEye])
+
   // Idle animation loop: gentle autonomous head/eye movement with personality
   useEffect(() => {
     let startTime = performance.now()
@@ -201,14 +207,14 @@ function AnimatedIconLogo({ className, containerRef, ...props }: AnimatedIconLog
 
         // Occasional playful wink while idle
         const nowMs = performance.now()
-        if (!winkEye && nowMs > winkUntilRef.current) {
+        if (!winkEyeRef.current && nowMs > winkUntilRef.current) {
           // ~ once every few seconds on average
           if (Math.random() < 0.007) {
             const eye: 'left' | 'right' = Math.random() < 0.5 ? 'left' : 'right'
             setWinkEye(eye)
             winkUntilRef.current = nowMs + 200 // wink duration
           }
-        } else if (winkEye && nowMs > winkUntilRef.current) {
+        } else if (winkEyeRef.current && nowMs > winkUntilRef.current) {
           setWinkEye(null)
         }
       } else {
