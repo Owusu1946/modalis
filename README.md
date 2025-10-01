@@ -29,7 +29,7 @@ Repo: https://github.com/Owusu1946/modalis.git
 - Multiple search providers support (Tavily, SearXNG, Exa)
 - Model selection from UI (switch between available AI models)
   - Reasoning models with visible thought process
-- Generative artifacts UI: web code editor with live preview
+- Generative artifacts UI: web code editor with live preview (Beta- early)
 - Built-in tools: search, retrieve, video search, web project builder
 - Rich code blocks with copy/download actions
 - BYOK API Key Manager: manage provider API keys locally in the browser
