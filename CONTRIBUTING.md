@@ -10,7 +10,7 @@ By participating in this project, you are expected to uphold our [Code of Conduc
 
 ### Reporting Issues
 
-- Check if the issue already exists in our [GitHub Issues](https://github.com/miurla/morphic/issues)
+- Check if the issue already exists in our [GitHub Issues](https://github.com/Owusu1946/modalis/issues)
 - Use the issue templates when creating a new issue
 - Provide as much context as possible
 
