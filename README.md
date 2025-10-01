@@ -29,6 +29,12 @@ Repo: https://github.com/Owusu1946/modalis.git
 - Multiple search providers support (Tavily, SearXNG, Exa)
 - Model selection from UI (switch between available AI models)
   - Reasoning models with visible thought process
+- Generative artifacts UI: web code editor with live preview
+- Built-in tools: search, retrieve, video search, web project builder
+- Rich code blocks with copy/download actions
+- BYOK API Key Manager: manage provider API keys locally in the browser
+- Chrome AI support: on-device, client-side AI for fully private chats
+- Voice Chat: overlay powered by Hume (optional; requires Hume API keys)
 
 ### Authentication
 
@@ -38,9 +44,9 @@ Repo: https://github.com/Owusu1946/modalis.git
 
 ### Chat & History
 
-- Chat history functionality (Optional)
-- Share search results (Optional)
-- Redis support (Local/Upstash)
+- Sidebar chat history UI
+- Persistent chat history (optional; Upstash Redis or local Redis)
+- Share chats via public links at `/share/[id]` (optional)
 
 ### AI Providers
 
@@ -56,8 +62,9 @@ The following AI providers are supported:
 - Fireworks
 - xAI (Grok)
 - OpenAI Compatible
+- Chrome AI (Gemini Nano; on-device, client-side)
 
-Models are configured in `public/config/models.json`. Each model requires its corresponding API key to be set in the environment variables. See [Configuration Guide](docs/CONFIGURATION.md) for details.
+Models are configured in `public/config/models.json` (with fallback to `lib/config/default-models.json`). Each model requires its corresponding API key to be set in the environment variables, or you can use BYOK via the in-app API Key Manager (keys are stored locally in your browser). See [Configuration Guide](docs/CONFIGURATION.md) for details.
 
 ### Search Capabilities
 
@@ -74,6 +81,7 @@ Models are configured in `public/config/models.json`. Each model requires its co
 
 - Docker deployment ready
 - Browser search engine integration
+
 
 ## 🧱 Stack
 
